@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* Leaflet overrides */
+.leaflet-container {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Add-mode: force crosshair on every element inside the map */
+.mc-add-mode,
+.mc-add-mode * {
+  cursor: crosshair !important;
+}
+
+/* Draggable custom location markers show a grab hand */
+.custom-draggable {
+  cursor: grab !important;
+}
+.custom-draggable:active {
+  cursor: grabbing !important;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  border: 1px solid #f1f5f9;
+}
+
+.leaflet-popup-tip {
+  background: white;
+}
+
+.leaflet-popup-content {
+  margin: 12px 14px;
+}
+
+/* Range slider accent */
+input[type="range"] {
+  accent-color: #10b981;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}

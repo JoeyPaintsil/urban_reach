@@ -1,0 +1,17 @@
+# secrets
+backend/.env
+
+# osmnx graph cache
+backend/graph_cache/
+backend/*.graphml
+backend/*.log
+backend/download_network.py
+backend/test_small.py
+
+# Next.js
+frontend/.next/
+frontend/node_modules/
+
+# Python
+__pycache__/
+*.pyc
