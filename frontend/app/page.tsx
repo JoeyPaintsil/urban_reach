@@ -20,7 +20,7 @@ const MapComponent = dynamic(() => import("@/components/MapComponent"), {
   ),
 });
 
-const API = "http://localhost:8000";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "https://urbanreach-backend-836838540954.europe-west1.run.app";
 
 export default function Page() {
   const [driveTime, setDriveTime] = useState(5);
