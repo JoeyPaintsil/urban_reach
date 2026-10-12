@@ -322,7 +322,7 @@ export default function MapComponent({
         key={basemap.key}
         url={basemap.url}
         attribution={basemap.attribution}
-        subdomains={basemap.url.includes("{s}") ? "abc" : undefined}
+        subdomains="abc"
         maxZoom={basemap.maxZoom}
       />
 
