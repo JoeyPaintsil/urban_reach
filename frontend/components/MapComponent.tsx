@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -128,6 +128,168 @@ interface Props {
 
 const LISBON: [number, number] = [38.7169, -9.1399];
 
+interface Basemap {
+  key: string;
+  label: string;
+  swatch: string;
+  url: string;
+  attribution: string;
+  maxZoom: number;
+}
+
+const BASEMAPS: Basemap[] = [
+  {
+    key: "street",
+    label: "Street",
+    swatch: "linear-gradient(135deg,#f3f4e9,#cfe3f7)",
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    maxZoom: 19,
+  },
+  {
+    key: "light",
+    label: "Light",
+    swatch: "linear-gradient(135deg,#f8f9fa,#e9ecef)",
+    url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 20,
+  },
+  {
+    key: "dark",
+    label: "Dark",
+    swatch: "linear-gradient(135deg,#2b2b2b,#1a1a1a)",
+    url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+    maxZoom: 20,
+  },
+  {
+    key: "satellite",
+    label: "Satellite",
+    swatch: "linear-gradient(135deg,#3a4a2f,#1f2d1a)",
+    url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    attribution: "Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics",
+    maxZoom: 19,
+  },
+  {
+    key: "terrain",
+    label: "Terrain",
+    swatch: "linear-gradient(135deg,#d9c79e,#8fae72)",
+    url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+    attribution: '&copy; OpenStreetMap contributors, SRTM | &copy; <a href="https://opentopomap.org">OpenTopoMap</a>',
+    maxZoom: 17,
+  },
+];
+
+function BasemapSwitcher({
+  current,
+  onChange,
+}: {
+  current: string;
+  onChange: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const active = BASEMAPS.find((b) => b.key === current) ?? BASEMAPS[0];
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 24,
+        left: 12,
+        zIndex: 1000,
+        display: "flex",
+        flexDirection: "column-reverse",
+        alignItems: "flex-start",
+        gap: 8,
+      }}
+      onMouseLeave={() => setOpen(false)}
+    >
+      <button
+        onClick={() => setOpen((o) => !o)}
+        title="Change base map"
+        style={{
+          width: 56,
+          height: 56,
+          borderRadius: 8,
+          border: "2px solid #fff",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+          background: active.swatch,
+          cursor: "pointer",
+          position: "relative",
+          overflow: "hidden",
+          padding: 0,
+        }}
+      >
+        <span
+          style={{
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            fontSize: 9,
+            fontWeight: 700,
+            color: "#fff",
+            background: "rgba(0,0,0,0.45)",
+            padding: "2px 0",
+            textAlign: "center",
+          }}
+        >
+          {active.label}
+        </span>
+      </button>
+
+      {open && (
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 6,
+            background: "#fff",
+            borderRadius: 10,
+            boxShadow: "0 2px 10px rgba(0,0,0,0.25)",
+            padding: 8,
+          }}
+        >
+          {BASEMAPS.map((b) => (
+            <button
+              key={b.key}
+              onClick={() => {
+                onChange(b.key);
+                setOpen(false);
+              }}
+              title={b.label}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                border: b.key === current ? "2px solid #2563eb" : "2px solid transparent",
+                borderRadius: 6,
+                background: "transparent",
+                cursor: "pointer",
+                padding: 2,
+              }}
+            >
+              <span
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 6,
+                  background: b.swatch,
+                  display: "block",
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: 12, fontWeight: 600, color: "#1f2937", paddingRight: 8 }}>
+                {b.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function MapComponent({
   locations,
   boundary,
@@ -145,7 +307,11 @@ export default function MapComponent({
   const selectedIsochrone =
     selectedId !== null ? isochrones.find((iso) => iso.id === selectedId) ?? null : null;
 
+  const [basemapKey, setBasemapKey] = useState("street");
+  const basemap = BASEMAPS.find((b) => b.key === basemapKey) ?? BASEMAPS[0];
+
   return (
+    <div style={{ position: "relative", height: "100%", width: "100%" }}>
     <MapContainer
       center={LISBON}
       zoom={11}
@@ -153,10 +319,11 @@ export default function MapComponent({
       zoomControl={false}
     >
       <TileLayer
-        url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>'
-        subdomains="abcd"
-        maxZoom={20}
+        key={basemap.key}
+        url={basemap.url}
+        attribution={basemap.attribution}
+        subdomains={basemap.url.includes("{s}") ? "abc" : undefined}
+        maxZoom={basemap.maxZoom}
       />
 
       <ZoomControl />
@@ -287,6 +454,8 @@ export default function MapComponent({
         </Marker>
       ))}
     </MapContainer>
+    <BasemapSwitcher current={basemapKey} onChange={setBasemapKey} />
+    </div>
   );
 }
 
